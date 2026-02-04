@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
             bgMusic.pause();
             musicControl.textContent = '🔇';
         } else {
-            bgMusic.play().catch(()=>{}); 
+            bgMusic.play().catch(()=>{}); // ignore errors
             musicControl.textContent = '🎵';
         }
         isMusicPlaying = !isMusicPlaying;
@@ -50,9 +50,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     musicControl.addEventListener('click', toggleMusic);
 
+    // Play music after first user interaction anywhere
     function userInteractionPlay() {
         if (!isMusicPlaying) {
-            bgMusic.muted = false; 
+            bgMusic.muted = false; // unmute
             bgMusic.play().then(() => {
                 isMusicPlaying = true;
                 musicControl.textContent = '🎵';
@@ -62,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     document.addEventListener('click', userInteractionPlay);
 
+    // Slow and fewer drops
     function createDrop(item){
         const drop = document.createElement('div');
         drop.className = item;
@@ -78,9 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setInterval(()=>{
         ['teddy-drop','choco-drop','heart-drop'].forEach(item => {
-            if(Math.random() < 0.3) createDrop(item); 
+            if(Math.random() < 0.3) createDrop(item); // 30% chance
         });
-    }, 1500); 
+    }, 1500); // slower interval
 
     noBtn.addEventListener('click', (e) => {
         e.preventDefault();
