@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Will You Be My Valentine? 💝</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <audio id="bgMusic" loop autoplay>
+        <source src="Love.mp3" type="audio/mp3">
+    </audio>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="heart-icon">💖</div>
+            <h1>To My Favorite Person</h1>
+            <p class="question">Can I take you out for Valentine’s Day?</p>
+            <p class="response-text" id="responseText"></p>
+            
+            <div class="buttons" id="buttonContainer">
+                <button id="yesBtn">Yes! 💕</button>
+                <button id="noBtn">No</button>
+            </div>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            <div class="celebration">🎉 💝 🎉</div>
+            
+            <p class="instruction" id="instruction">💌 Open the envelope for a little surprise 💌</p>
+            
+            <div class="envelope-wrapper">
+                <div class="envelope" id="envelope">
+                    <div class="envelope-front"></div>
+                    <div class="envelope-flap"></div>
+                    <div class="envelope-seal">💌</div>
+                    
+                    <div class="letter">
+                        <div class="letter-content">
+                            <div class="letter-header">
+                                <h2>To My Dearest Valentine 💌</h2>
+                                <p class="letter-date">February 14, 2026</p>
+                            </div>
+                            
+                            <div class="letter-body">
+                                <p class="letter-greeting">To the one who fills my heart with butterflies</p>
+                                
+                                <p>I still can’t believe you said yes! My heart is literally bursting with happiness right now. From the very first moment we met, I knew there was something truly magical about you.</p>
+
+                                <p>Your smile lights up my world, and your laughter is the sweetest melody I could ever hear. Every little chat with you feels like a tiny spark of magic, and every second we spend together is a treasure I’ll hold forever in my heart.</p>
+
+                            <div class="heart-decoration">💕 💖 💕</div>
+
+                                <p>This Valentine’s Day, I want you to know that you mean everything to me. I promise to make you smile every single day, to cheer you on in everything you do, and to treasure every special moment we share together.</p>
+
+                                <p>Thank you for saying yes and for letting me show you just how amazing and loved you are. I can’t wait for all the beautiful memories we’re going to make together—filled with laughter, joy, and endless love.</p>
+
+                                <p class="ps-note">P.S. - Brace yourself for the sweetest, most unforgettable Valentine’s Day ever! I’ve got some little surprises that I hope will make you smile from ear to ear. 🌹✨</p>
+
+                            </div>
+                            
+                            <div class="letter-signature">
+                                <p>Always in my heart 💖</p>
+                                <p>Your One & Only 💘</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="backBtn">⬅ Go Back</button>
+        </div>
+    </div>
+
+    <button id="musicControl">🔇</button>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
