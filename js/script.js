@@ -22,6 +22,46 @@ document.addEventListener('DOMContentLoaded', () => {
     const originalYesFontSize = window.getComputedStyle(yesBtn).fontSize;
     const originalYesPadding = window.getComputedStyle(yesBtn).padding;
 
+    // --- MUSIC LOGIC FIX ---
+    function playMusic() {
+        if (!isMusicPlaying) {
+            bgMusic.play().then(() => {
+                isMusicPlaying = true;
+                musicControl.textContent = '🎵';
+            }).catch(e => console.log("Playback prevented:", e));
+        }
+    }
+
+    function toggleMusic() {
+        if (isMusicPlaying) {
+            bgMusic.pause();
+            musicControl.textContent = '🔇';
+        } else {
+            bgMusic.play().catch(()=>{});
+            musicControl.textContent = '🎵';
+        }
+        isMusicPlaying = !isMusicPlaying;
+    }
+
+    // Listener for manual control
+    musicControl.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent global listener from double-triggering
+        toggleMusic();
+    });
+
+    // Global listener to satisfy browser autoplay policies on first interaction
+    const startOnInteraction = () => {
+        playMusic();
+        ['click', 'touchstart', 'keydown'].forEach(evt => 
+            document.removeEventListener(evt, startOnInteraction)
+        );
+    };
+
+    ['click', 'touchstart', 'keydown'].forEach(evt => 
+        document.addEventListener(evt, startOnInteraction)
+    );
+    // --- END MUSIC LOGIC FIX ---
+
     function moveNoButtonSlow() {
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
@@ -37,33 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
         noBtn.style.transition = 'all 0.8s ease';
     }
 
-    function toggleMusic() {
-        if (isMusicPlaying) {
-            bgMusic.pause();
-            musicControl.textContent = '🔇';
-        } else {
-            bgMusic.play().catch(()=>{}); // ignore errors
-            musicControl.textContent = '🎵';
-        }
-        isMusicPlaying = !isMusicPlaying;
-    }
-
-    musicControl.addEventListener('click', toggleMusic);
-
-    // Play music after first user interaction anywhere
-    function userInteractionPlay() {
-        if (!isMusicPlaying) {
-            bgMusic.muted = false; // unmute
-            bgMusic.play().then(() => {
-                isMusicPlaying = true;
-                musicControl.textContent = '🎵';
-            }).catch(()=>{});
-        }
-        document.removeEventListener('click', userInteractionPlay);
-    }
-    document.addEventListener('click', userInteractionPlay);
-
-    // Slow and fewer drops
     function createDrop(item){
         const drop = document.createElement('div');
         drop.className = item;
@@ -80,9 +93,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setInterval(()=>{
         ['teddy-drop','choco-drop','heart-drop'].forEach(item => {
-            if(Math.random() < 0.3) createDrop(item); // 30% chance
+            if(Math.random() < 0.3) createDrop(item);
         });
-    }, 1500); // slower interval
+    }, 1500);
 
     noBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -106,7 +119,9 @@ document.addEventListener('DOMContentLoaded', () => {
         mainContent.style.display = 'none';
         successMessage.style.display = 'block';
         noBtn.style.display = 'none';
-        if (!isMusicPlaying) toggleMusic();
+        
+        // Ensure music is playing when they click Yes
+        playMusic();
 
         for (let i = 0; i < 100; i++) {
             setTimeout(() => {
