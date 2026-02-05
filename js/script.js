@@ -5,164 +5,174 @@ document.addEventListener('DOMContentLoaded', () => {
     const responseText = document.getElementById('responseText');
     const mainContent = document.querySelector('.main-content');
     const successMessage = document.getElementById('successMessage');
-    const envelope = document.getElementById('envelope');
-    const instruction = document.getElementById('instruction');
+    const bottleContainer = document.getElementById('bottleContainer');
+    const letterOverlay = document.getElementById('letterOverlay');
+    const closeLetterBtn = document.getElementById('closeLetter');
     const musicControl = document.getElementById('musicControl');
     const bgMusic = document.getElementById('bgMusic');
+    const tiltCard = document.getElementById('tiltCard');
+
+    let isAnimating = false;
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isAnimating && window.innerWidth > 600) {
+            window.requestAnimationFrame(() => {
+                const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+                const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+                tiltCard.style.transform = `perspective(1000px) rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+                isAnimating = false;
+            });
+            isAnimating = true;
+        }
+    });
+
+    document.addEventListener('mouseleave', () => {
+        tiltCard.style.transform = `perspective(1000px) rotateY(0deg) rotateX(0deg)`;
+    });
 
     let isMusicPlaying = false;
-    let phraseIndex = 0;
-
-    const noPhrases = [
-        "Nooo! 💔","Pretty please! 💕","Come back! 😘","Think again! 💓","Last chance! 🌹",
-        "Say yes! 💌","Don’t go! 💖","My heart! 💘","Oopsie! 😍","Heart me! 💞",
-        "Not yet! 💓","Hug me! 🤗","Change mind? 💕","Pretty please? 😇","Final yes? 💖","Love me! 💌"
-    ];
-
-    const originalYesFontSize = window.getComputedStyle(yesBtn).fontSize;
-    const originalYesPadding = window.getComputedStyle(yesBtn).padding;
-
-    // --- MUSIC LOGIC FIX ---
-    function playMusic() {
+    function startMusic() {
         if (!isMusicPlaying) {
+            bgMusic.volume = 0.5;
             bgMusic.play().then(() => {
                 isMusicPlaying = true;
                 musicControl.textContent = '🎵';
-            }).catch(e => console.log("Playback prevented:", e));
+            }).catch(() => {});
         }
     }
-
-    function toggleMusic() {
-        if (isMusicPlaying) {
-            bgMusic.pause();
-            musicControl.textContent = '🔇';
-        } else {
-            bgMusic.play().catch(()=>{});
-            musicControl.textContent = '🎵';
-        }
-        isMusicPlaying = !isMusicPlaying;
-    }
-
-    // Listener for manual control
+    document.body.addEventListener('click', startMusic, { once: true });
+    
     musicControl.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent global listener from double-triggering
-        toggleMusic();
+        e.stopPropagation();
+        if(isMusicPlaying) { 
+            bgMusic.pause(); 
+            musicControl.textContent = '🔇'; 
+            isMusicPlaying = false; 
+        } else { 
+            startMusic(); 
+        }
     });
 
-    // Global listener to satisfy browser autoplay policies on first interaction
-    const startOnInteraction = () => {
-        playMusic();
-        ['click', 'touchstart', 'keydown'].forEach(evt => 
-            document.removeEventListener(evt, startOnInteraction)
-        );
-    };
+    let clickCount = 0;
+    let yesScale = 1;
+    const noPhrases = [
+    "No? 🥀",
+    "Really? 🥺",
+    "Think again!",
+    "Pretty please? 🍭",
+    "My heart... 💔",
+    "Be mine? 🎀",
+    "Try again! ✨",
+    "Wrong choice! 🚫",
+    "Heart breaker! 🏹",
+    "Just Yes! 💖",
+    "Stop that! 🐱",
+    "Cupid's watching! 👼",
+    "Final answer? 🧐",
+    "Say it! 🍬",
+    "Yes please! 🌸"
+];
 
-    ['click', 'touchstart', 'keydown'].forEach(evt => 
-        document.addEventListener(evt, startOnInteraction)
-    );
-    // --- END MUSIC LOGIC FIX ---
+    function moveNoButton() {
+        if (noBtn.parentNode !== document.body) {
+            noBtn.style.width = noBtn.getBoundingClientRect().width + 'px';
+            document.body.appendChild(noBtn);
+            noBtn.style.position = 'fixed';
+        }
 
-    function moveNoButtonSlow() {
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
-        const btnWidth = noBtn.offsetWidth;
-        const btnHeight = noBtn.offsetHeight;
+        noBtn.innerText = noPhrases[clickCount % noPhrases.length];
+        clickCount++;
+        noBtn.style.width = 'auto';
 
-        const randomX = Math.random() * (windowWidth - btnWidth - 40) + 20;
-        const randomY = Math.random() * (windowHeight - btnHeight - 40) + 20;
+        const padding = 20;
+        const maxLeft = window.innerWidth - noBtn.offsetWidth - padding;
+        const maxTop = window.innerHeight - noBtn.offsetHeight - padding;
 
-        noBtn.style.position = 'fixed';
-        noBtn.style.left = randomX + 'px';
-        noBtn.style.top = randomY + 'px';
-        noBtn.style.transition = 'all 0.8s ease';
+        let newLeft = Math.max(padding, Math.min(Math.random() * maxLeft, maxLeft));
+        let newTop = Math.max(padding, Math.min(Math.random() * maxTop, maxTop));
+
+        noBtn.style.left = newLeft + 'px';
+        noBtn.style.top = newTop + 'px';
+
+        if(yesScale < 3) { 
+            yesScale += 0.2; 
+            document.querySelector('.heart-shape').style.transform = `rotate(-45deg) scale(${yesScale})`;
+        }
+        
+        responseText.innerText = "Nice try! 👻";
     }
 
-    function createDrop(item){
-        const drop = document.createElement('div');
-        drop.className = item;
-        if(item==='teddy-drop') drop.textContent='🐻';
-        else if(item==='choco-drop') drop.textContent='🍫';
-        else drop.textContent='💖';
-        
-        drop.style.left = Math.random()*100 + '%';
-        drop.style.fontSize = (Math.random()*15 + 15) + 'px';
-        document.body.appendChild(drop);
-        
-        setTimeout(()=>drop.remove(), 8000);
-    }
+    noBtn.addEventListener('mouseover', moveNoButton);
+    noBtn.addEventListener('touchstart', (e) => { 
+        e.preventDefault(); 
+        moveNoButton(); 
+    });
 
-    setInterval(()=>{
-        ['teddy-drop','choco-drop','heart-drop'].forEach(item => {
-            if(Math.random() < 0.3) createDrop(item);
-        });
-    }, 1500);
-
-    noBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        noBtn.innerText = noPhrases[phraseIndex % noPhrases.length];
-        phraseIndex++;
-
-        const currentSize = parseFloat(window.getComputedStyle(yesBtn).fontSize);
-        const currentPadding = parseFloat(window.getComputedStyle(yesBtn).paddingTop);
-        yesBtn.style.fontSize = `${currentSize * 1.2}px`;
-        yesBtn.style.padding = `${currentPadding * 1.2}px ${currentPadding * 2.5}px`;
-
-        moveNoButtonSlow();
-
-        responseText.textContent = "Please? 🥺";
-        responseText.style.animation = 'none';
-        void responseText.offsetWidth;
-        responseText.style.animation = 'textPulse 0.5s ease-out';
+    noBtn.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        moveNoButton(); 
     });
 
     yesBtn.addEventListener('click', () => {
         mainContent.style.display = 'none';
         successMessage.style.display = 'block';
         noBtn.style.display = 'none';
-        
-        // Ensure music is playing when they click Yes
-        playMusic();
-
-        for (let i = 0; i < 100; i++) {
-            setTimeout(() => {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + '%';
-                confetti.style.top = '-10px';
-                confetti.style.backgroundColor = ['#ff6b9d','#c2185b','#f48fb1','#ffd6e8','#ffb3d9','#ff1744'][Math.floor(Math.random()*6)];
-                confetti.style.animationDelay = Math.random()*0.5+'s';
-                confetti.style.animationDuration = (Math.random()*2+2)+'s';
-                document.body.appendChild(confetti);
-                setTimeout(() => confetti.remove(), 3000);
-            }, i*20);
-        }
+        createSparkles();
     });
 
-    envelope.addEventListener('click', () => {
-        if (!envelope.classList.contains('open')) {
-            envelope.classList.add('open');
-            instruction.style.display = 'none';
-        }
+    bottleContainer.addEventListener('click', () => {
+        letterOverlay.classList.add('open');
+    });
+
+    closeLetterBtn.addEventListener('click', () => {
+        letterOverlay.classList.remove('open');
     });
 
     backBtn.addEventListener('click', () => {
         successMessage.style.display = 'none';
         mainContent.style.display = 'block';
-        envelope.classList.remove('open');
-        instruction.style.display = 'block';
-        instruction.textContent = "✨ Click the envelope to open your letter! ✨";
-
+        letterOverlay.classList.remove('open');
+        
+        document.getElementById('buttonContainer').appendChild(noBtn);
+        noBtn.style.position = 'static';
         noBtn.style.display = 'inline-block';
-        noBtn.style.position = 'relative';
-        noBtn.style.left = 'auto';
-        noBtn.style.top = 'auto';
-        noBtn.style.transition = 'none';
         noBtn.innerText = "No";
-
-        yesBtn.style.fontSize = originalYesFontSize;
-        yesBtn.style.padding = originalYesPadding;
-
-        responseText.textContent = "";
-        phraseIndex = 0;
+        
+        yesScale = 1;
+        document.querySelector('.heart-shape').style.transform = `rotate(-45deg) scale(1)`;
+        responseText.innerText = "";
+        clickCount = 0;
     });
+
+    function createSparkles() {
+        const fragment = document.createDocumentFragment();
+        const sparkleCount = 30;
+
+        for(let i=0; i < sparkleCount; i++) {
+            const sparkle = document.createElement('div');
+            sparkle.innerHTML = '✨';
+            sparkle.style.position = 'fixed';
+            sparkle.style.left = Math.random() * 100 + '%';
+            sparkle.style.top = Math.random() * 100 + '%';
+            sparkle.style.fontSize = Math.random() * 20 + 10 + 'px';
+            sparkle.style.color = '#ffd700';
+            sparkle.style.pointerEvents = 'none';
+            sparkle.style.animation = `fadeSparkle 2s linear forwards`;
+            
+            fragment.appendChild(sparkle);
+            
+            setTimeout(() => {
+                if(sparkle.parentNode) sparkle.parentNode.removeChild(sparkle);
+            }, 2000);
+        }
+        
+        document.body.appendChild(fragment);
+    }
+    
+    if (!document.getElementById('sparkle-style')) {
+        const style = document.createElement('style');
+        style.id = 'sparkle-style';
+        style.innerHTML = `@keyframes fadeSparkle { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.5) translateY(-50px); } }`;
+        document.head.appendChild(style);
+    }
 });
